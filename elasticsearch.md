@@ -237,7 +237,67 @@ curl -XPOST -u elastic:Keda-es@21# 'localhost:9310/_xpack/security/user/kedacom'
   "roles" : [ "kedacom" ]
 }'
 ```
+# es内存使用记录及维护
 
+es内存使用主要由一下几个方面，相关说明如下表：
+
+| es内存消耗大户               | 大小              | 说明                             |
+| ---------------------------- | ----------------- | -------------------------------- |
+| 1. segment memory            | -                 | lucene倒排索引，和索引数量正相关 |
+| 2. Request cache             | 默认10% heap      | 缓存使用过的filter的结果集的     |
+| 3. field data cache          | 默认超过40%进行gc | 和查询的命中结果                 |
+| 4. bulk queue                | 默认              | request在内存的排列              |
+| 5. indexing buffer           | 默认10% heap      | 缓存新数据                       |
+| 6. state buffer              | -                 | 集群状态的拷贝，单机可忽略       |
+| 7. 超大搜索聚合结果集的fetch | -                 | 和返回结果的size相关             |
+
+- 内存主要增大点：
+
+  field data cache ，segment memory
+
+- 解决方法：
+
+  segment memory：
+
+  ​	通过减少不需要的索引，来达到减少这部分内存占用的效果
+
+  field data cache：
+
+  ​	该内存默认可以无限增长，知道达到设置的**indices.breaker.fielddata.limit(默认40%heap size)**为止，主要有一下设置可以降低内存使用
+
+  > 在配置文件设置**indices.fielddata.cache.size（静态）**
+
+  ​	可以设置绝对值（12GB）和相对值（20% heap size）,到达设置的数量后，会清理最早的数据
+
+  ```
+  elasticsearch.yml： indices.fielddata.cache.size: 20%
+  ```
+
+  > 设置**indices.breaker.fielddata.limit（动态）**
+
+  ​	系统设置的默认值为 40% of JVM heap，动态更改语句为
+
+  ```
+  PUT /_cluster/settings
+  {
+    "persistent": {
+      "indices.breaker.fielddata.limit": "30%"
+    }
+  }
+  ```
+
+  > 手动清理cache
+
+  ```
+  #清理指定索引的指定cache:分别指定fielddata，query，request cache
+  POST /my-index-000001/_cache/clear?fielddata=true  
+  POST /my-index-000001/_cache/clear?query=true      
+  POST /my-index-000001/_cache/clear?request=true
+  
+  #清理指定索引的全部cache
+  POST /my-index-000001/_cache/clear
+  ```
+## 
 ## 其他信息记录
 
 - es版本升级注意点
