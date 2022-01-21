@@ -24,7 +24,7 @@ es的数据迁移，依据迁移的数据量的不同，有以下几种方式：
 ```shell
 #ip1:index->ip2:index
 
-elasticdump --input=http://ip1:9310/test --output=http://ip2:9310/test
+elasticdump --input=http://ip1:9200/test --output=http://ip2:9200/test
 ```
 
 
@@ -39,22 +39,22 @@ elasticdump --input=http://ip1:9310/test --output=http://ip2:9310/test
 
 如果采用第一种方式，建议使用后台执行多开CP命令的方式，充分调用机器的IO资源，参考迁移脚本实现如下
 
-/opt/data/region/platformData/hd0/elk/elk-data ---> /opt/data/region/platformData/hd1/elk/elk-data
+/opt/data/hd0/elk/elk-data ---> /opt/data/hd1/elk/elk-data
 
 ```shell
 #!/bin/bash
 
-mkdir -p /opt/data/region/platformData/hd0/elk/elk-data/nodes/0
-\cp -a /opt/data/region/platformData/hd0/elk/elk-data/nodes/0/node.lock /opt/data/region/platformData/hd1/elk/elk-data/nodes/0
-\cp -a /opt/data/region/platformData/hd0/elk/elk-data/nodes/0/_state /opt/data/region/platformData/hd1/elk/elk-data/nodes/0
+mkdir -p /opt/data/hd0/elk/elk-data/nodes/0
+\cp -a /opt/data/hd0/elk/elk-data/nodes/0/node.lock /opt/data/hd1/elk/elk-data/nodes/0
+\cp -a /opt/data/hd0/elk/elk-data/nodes/0/_state /opt/data/hd1/elk/elk-data/nodes/0
 
-mkdir -p /opt/data/region/platformData/hd1/elk/elk-data/nodes/0/indices
-cd /opt/data/region/platformData/hd0/elk/elk-data/nodes/0/indices
+mkdir -p /opt/data/hd1/elk/elk-data/nodes/0/indices
+cd /opt/data/hd0/elk/elk-data/nodes/0/indices
 
 for dir in `ls -l |awk '{print $9}'`
 do
 {
-cp -a $dir /opt/data/region/platformData/hd1/elk/elk-data/nodes/0/indices
+cp -a $dir /opt/data/hd1/elk/elk-data/nodes/0/indices
 }&
 
 done
