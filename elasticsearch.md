@@ -152,9 +152,9 @@ XPOST {{path}}/.auto_close/taskInfo/
 
 ```shell
 重新分配示例：
-for shard in $(curl --user elastic:Keda-es@21# -XGET http://localhost:9310/_cat/shards | grep closed | awk '{print $1}'); 
+for shard in $(curl --user elastic:password -XGET http://localhost:9310/_cat/shards | grep closed | awk '{print $1}'); 
 do
-curl --user elastic:Keda-es@21# -XDELETE "http://localhost:9310/$shard" 
+curl --user elastic:password -XDELETE "http://localhost:9310/$shard" 
 done
 
 curl -XPOST  -H "Content-Type: application/json" http://localhost:9310/_cluster/reroute? -d '{
@@ -230,10 +230,10 @@ curl -u elastic:password -XDELETE "http://localhost:9310/.security*"
 curl -u admin:my_password -XDELETE "http://localhost:9310/_all"
 
 新建只读用户
-curl -XPOST -u elastic:Keda-es@21# 'localhost:9310/_xpack/security/role/kedacom' -H "Content-Type: application/json" -d '{"cluster":["all"],"indices":[{"names":["*"],"privileges":["read"]}]}'
-curl -XPOST -u elastic:Keda-es@21# 'localhost:9310/_xpack/security/user/kedacom' -H "Content-Type: application/json" -d '{
-  "password" : "KedaKibana16#",
-  "full_name" : "keda kibana",
+curl -XPOST -u elastic:password 'localhost:9310/_xpack/security/role/kedacom' -H "Content-Type: application/json" -d '{"cluster":["all"],"indices":[{"names":["*"],"privileges":["read"]}]}'
+curl -XPOST -u elastic:password 'localhost:9310/_xpack/security/user/kedacom' -H "Content-Type: application/json" -d '{
+  "password" : "password16#",
+  "full_name" : "kibana",
   "roles" : [ "kedacom" ]
 }'
 ```
