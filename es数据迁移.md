@@ -107,12 +107,12 @@ PUT _snapshot/my_backup/snapshot_1
 4.从快照中恢复：
 
 ```shell
-curl -XPOST "http://localhost:9310/_snapshot/my_backup/snapshot_1/_restore"
+curl -XPOST "http://localhost:9200/_snapshot/my_backup/snapshot_1/_restore"
 ```
 
 查看所有索引的恢复进度
 
 ```shell
-curl -XGET http://localhost:9310/_recovery/
+curl -XGET http://localhost:9200/_recovery/
 ```
 
